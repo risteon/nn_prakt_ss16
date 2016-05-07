@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import division
 import sys
 import logging
 
@@ -36,6 +37,8 @@ class Perceptron(Classifier):
     """
     def __init__(self, train, valid, test, learningRate=0.01, epochs=50):
 
+        assert(epochs > 0)
+
         self.learningRate = learningRate
         self.epochs = epochs
 
@@ -46,6 +49,7 @@ class Perceptron(Classifier):
         # Initialize the weight vector with small random values
         # around 0 and 0.1
         self.weight = np.random.rand(self.trainingSet.input.shape[1])/10
+        self.w_0 = 0.0
 
     def train(self, verbose=True):
         """Train the perceptron with the perceptron learning algorithm.
@@ -58,7 +62,36 @@ class Perceptron(Classifier):
 
         # Here you have to implement the Perceptron Learning Algorithm
         # to change the weights of the Perceptron
-        pass
+
+        # class omega_1 : is digit 7, class omega_2: another digit
+
+        split_view = 0
+
+        while split_view < self.trainingSet.input.shape[0]:
+
+            training_epoch = self.trainingSet.input[split_view:split_view+self.epochs, :]
+            label_epoch = self.trainingSet.label[split_view:split_view+self.epochs]
+
+            delta_w = np.zeros(shape=self.weight.shape)
+            delta_w_0 = 0.0
+
+            for x, label in zip(training_epoch, label_epoch):
+                dot_product = np.dot(np.array(x), self.weight) + self.w_0
+                g = dot_product if label == 1 else -dot_product
+
+                if g < 0.0:
+                    delta_w += x if label == 1 else -x
+                    delta_w_0 += 1.0 if label == 1 else -1.0
+
+            self.weight += self.learningRate * delta_w
+            self.w_0 += self.learningRate * delta_w_0
+            split_view += self.epochs
+
+            if verbose:
+                validation = self.evaluate(self.validationSet.input)
+                misclassified = len([i for i, j in zip(validation, self.validationSet.label) if i != j])
+                print "Validating perceptron after epoch", split_view, ", misclassified: ", misclassified,\
+                    ", accurarcy:", (1-misclassified/len(validation))*100, "%"
 
     def classify(self, testInstance):
         """Classify a single instance.
@@ -75,7 +108,7 @@ class Perceptron(Classifier):
         # Here you have to implement the classification for one instance,
         # i.e., return True if the testInstance is recognized as a 7,
         # False otherwise
-        pass
+        return self.fire(testInstance)
 
     def evaluate(self, test=None):
         """Evaluate a whole dataset.
@@ -102,4 +135,4 @@ class Perceptron(Classifier):
     def fire(self, input):
         """Fire the output of the perceptron corresponding to the input """
         # I already implemented it for you to see how you can work with numpy
-        return Activation.sign(np.dot(np.array(input), self.weight))
+        return Activation.sign(np.dot(np.array(input), self.weight) + self.w_0)
