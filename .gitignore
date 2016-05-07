@@ -23,3 +23,6 @@ src/model/*.pyc
 src/processing/*.pyc
 src/report/*.pyc
 src/util/*.pyc
+
+# Pycharm
+.idea/*
