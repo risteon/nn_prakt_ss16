@@ -41,6 +41,8 @@ class LogisticRegression(Classifier):
 
         self.learningRate = learningRate
         self.epochs = epochs
+        
+        self.epoch_performance = []
 
         self.trainingSet = train
         self.validationSet = valid
@@ -52,6 +54,7 @@ class LogisticRegression(Classifier):
         self.trainingSet.input = np.insert(self.trainingSet.input, 0, 1, axis=1)
         self.validationSet.input = np.insert(self.validationSet.input, 0, 1, axis=1)
         self.testSet.input = np.insert(self.testSet.input, 0, 1, axis=1)
+
 
     def train(self, verbose=True):
         """Train the Logistic Regression.
@@ -74,6 +77,7 @@ class LogisticRegression(Classifier):
             if verbose:
                 accuracy = accuracy_score(self.validationSet.label,
                                           self.evaluate(self.validationSet))
+                self.epoch_performance.append(accuracy)
                 print("Accuracy on validation: {0:.2f}%"
                       .format(accuracy * 100))
                 print("-----------------------------")

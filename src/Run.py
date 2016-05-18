@@ -9,7 +9,12 @@ from report.evaluator import Evaluator
 from util.activation_functions import Activation
 import numpy as np
 
+# plot performance graph
+import matplotlib.pyplot as plt
+
 def main():
+
+    epochs = 30
 
     data = MNISTSeven("../data/mnist_seven.csv", 3000, 1000, 1000)
     myStupidClassifier = StupidRecognizer(data.trainingSet,
@@ -24,8 +29,8 @@ def main():
     myLRClassifier = LogisticRegression(data.trainingSet,
                                         data.validationSet,
                                         data.testSet,
-                                        learningRate=0.005,
-                                        epochs=30)
+                                        learningRate=0.05,
+                                        epochs=epochs)
 
     # Train the classifiers
     print("=========================")
@@ -65,6 +70,11 @@ def main():
     # evaluator.printComparison(data.testSet, perceptronPred)
     evaluator.printAccuracy(data.testSet, lrPred)
 
+    # show performance plot
+    print(myLRClassifier.epoch_performance)
+    plt.plot([x for x in range(1, epochs+1)], myLRClassifier.epoch_performance)
+    plt.axis([1, epochs, 0.0, 1.0])
+    plt.show()
 
 if __name__ == '__main__':
     main()
