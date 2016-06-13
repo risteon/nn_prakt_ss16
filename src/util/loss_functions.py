@@ -99,4 +99,4 @@ class CrossEntropyError(Error):
 
     def calculate_error(self, target, output):
         # Here you have to implement the Cross Entropy Error
-        pass
+        return -np.sum(np.multiply(target, np.log(output)) + np.multiply((1-target), np.log(1-output)))
