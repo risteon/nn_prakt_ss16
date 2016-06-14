@@ -101,10 +101,7 @@ class MultilayerPerceptron(Classifier):
 
             outp = layer.forward(outp)
 
-        # apply softmax
-        if self.classification_task:
-            self.outp = self.output_activation_func(outp)
-
+        self.outp = outp
         return self.outp
 
     def _compute_error(self, target):
@@ -115,29 +112,24 @@ class MultilayerPerceptron(Classifier):
         -------
         Error of output using cost function (scalar value)
         """
-        return self.cost_function.calculate_error(target, self._get_output_layer().outp)
+        output_size = self._get_output_layer().n_out
+        # create one-hot target output
+        target_outp = np.asmatrix(np.zeros(output_size))
+        target_outp[0, target] = 1.0
+
+        return target_outp - self.outp
 
     def _update_weights(self, label):
         """
         Update the weights of the layers by propagating back the error
         """
-
-        output_size = self._get_output_layer().n_out
-        # create one-hot target output
-        target_outp = np.asmatrix(np.zeros(output_size))
-        target_outp[0, label] = 1.0
         # create dummy next weights as vector of ones
-        next_weights = np.asmatrix(np.ones((output_size, output_size)))
+        next_weights = np.asmatrix(np.ones((self._get_output_layer().n_out, self._get_output_layer().n_out)))
 
         output_layer = True
         for layer in reversed(self.layers):
             if output_layer:
-                # softmax layer derivatives
-                # do I really need to apply softmax prime? Slide 45 in Backpropagation says NO
-                # next_derivatives = Activation.softmax_prime(target_outp - self.outp)
-                next_derivatives = target_outp - self.outp
-
-                layer.computeDerivative(next_derivatives,
+                layer.computeDerivative(self._compute_error(label),
                                         next_weights)
                 output_layer = False
             else:

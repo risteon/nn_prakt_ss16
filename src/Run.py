@@ -73,7 +73,7 @@ def main():
 
     # Multi layer perceptron
     layers = [LogisticLayer(data.training_set.input.shape[1], 30, None, 'sigmoid', False),
-              LogisticLayer(30, 10, None, 'sigmoid', True)]
+              LogisticLayer(30, 10, None, 'softmax', True)]
     myMLPClassifier = MultilayerPerceptron(data.training_set,
                                            data.validation_set,
                                            data.test_set,
